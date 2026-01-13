@@ -1,4 +1,4 @@
-import axios from "axios";
+import { api } from "@/lib/api";
 import * as SecureStore from "expo-secure-store";
 import {
   createContext,
@@ -7,6 +7,8 @@ import {
   useEffect,
   useState,
 } from "react";
+import { TOKEN_KEY } from "../constants/storage";
+
 interface AuthProps {
   authState?: { token: string | null; authenticated: boolean | null };
   onRegister?: (email: string, password: string) => Promise<any>;
@@ -14,13 +16,8 @@ interface AuthProps {
   onLogout?: () => Promise<any>;
 }
 
-const TOKEN_KEY = "jwt-token";
-export const API_URL = "https://api.example.com";
 const AuthContext = createContext<AuthProps>({});
 
-const api = axios.create({
-  baseURL: API_URL,
-});
 export const useAuth = () => {
   return useContext(AuthContext);
 };
@@ -51,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (email: string, password: string) => {
     try {
-      return await api.post(`${API_URL}/register`, { email, password });
+      return await api.post(`/register`, { email, password });
     } catch (e) {
       return {
         error: true,
@@ -62,7 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const result = await api.post(`${API_URL}/login`, { email, password });
+      const result = await api.post(`/login`, { email, password });
       console.log("Login success:", result.data);
 
       setAuthState({ token: result.data.token, authenticated: true });
